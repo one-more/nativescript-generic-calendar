@@ -1,6 +1,7 @@
 import {CalendarEventData, CellData, NormalizedEvents} from "~/components/calendar/models";
-import {max} from "moment";
 
+// probably you don't need methods bellow (daysInMonth, getFirstDay, minusMonth, plusMonth, getPrevMonth)
+// because of moment or lightweght alternatives exist (https://github.com/iamkun/dayjs) 
 export function daysInMonth(monthNum: number, yearNum: number): number {
     return 32 - new Date(yearNum, monthNum, 32).getDate();
 }
@@ -31,17 +32,16 @@ export function filterEvents(
     year: number,
     events: CalendarEventData[]
 ): CalendarEventData[] {
-    return events.filter(event => {
-        if (event.isRecurrent) {
+    // destructuring can make it better
+    return events.filter(({ isRecurrent, date, start, end }) => {
+        if (isRecurrent) {
             return true
         }
-        if (event.date) {
-            const {date} = event;
+        if (date) {
             const dateMonth = date.getMonth(), dateYear = date.getFullYear();
             return dateYear == year && dateMonth == month
         }
-        if (event.start && event.end) {
-            const {start, end} = event;
+        if (start && end) {
             const startMonth = start.getMonth(), endMonth = end.getMonth(),
                 startYear = start.getFullYear(), endYear = end.getFullYear();
             return (startMonth <= month && startYear <= year) &&
@@ -51,6 +51,8 @@ export function filterEvents(
     })
 }
 
+// is it really necessary to make O(N^2) ? As far as I know you have 7 days per week
+// so you can easy manage it in one loop just use condition date % 7 === 0 
 export function generateMonthGrid(
     maxDate: number,
     firstDay: number,
@@ -104,6 +106,7 @@ export function generateMonthGrid(
     return grid
 }
 
+// yearMonthData is not clarify for me what this function should to do
 export function yearMonthData(
     month: number,
     year: number,
@@ -140,6 +143,8 @@ export function yearMonthData(
     )
 }
 
+// I don't understand why, because of name, sorry.
+// in case of zero, maybe you can cast it for your calculations and then transform it ? In this case you don't need it
 export function getAdditionalDays(firstDay: number): number {
     if (firstDay == 0) {
         return 6
@@ -183,6 +188,7 @@ export function getColForStartEnd(
     return col
 }
 
+// getColSpan - the same issue with the name
 export function getColSpan(
     start: Date,
     end: Date,
