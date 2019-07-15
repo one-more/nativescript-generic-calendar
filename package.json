@@ -1,0 +1,23 @@
+{
+  "name": "nativescript-generic-calendar",
+  "version": "1.0.0",
+  "description": "nativescript calendar",
+  "main": "calendar.ts",
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/one-more/nativescript-generic-calendar.git"
+  },
+  "keywords": [
+    "nativescript",
+    "calendar"
+  ],
+  "author": "one-more",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/one-more/nativescript-generic-calendar/issues"
+  },
+  "homepage": "https://github.com/one-more/nativescript-generic-calendar#readme"
+}
