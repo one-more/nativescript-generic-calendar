@@ -1,57 +1,84 @@
-import {StackLayout} from "tns-core-modules/ui/layouts/stack-layout";
-import * as builder from "tns-core-modules/ui/builder";
-import {Repeater} from "tns-core-modules/ui/repeater";
-import {Property} from "tns-core-modules/ui/core/properties";
-import {EventData, LayoutBase, Template, View} from "tns-core-modules/ui/layouts/layout-base";
-import {AbsoluteLayout} from "tns-core-modules/ui/layouts/absolute-layout";
-import {Animation} from "tns-core-modules/ui/animation";
-import {minusMonth, plusMonth, yearMonthData} from "./utils";
-import {CalendarEventData, CellData} from "./models";
-import {screen} from "tns-core-modules/platform";
-import {MonthView} from "~/components/calendar/month-view";
+import { StackLayout } from 'tns-core-modules/ui/layouts/stack-layout';
+import * as builder from 'tns-core-modules/ui/builder';
+import { Repeater } from 'tns-core-modules/ui/repeater';
+import { Property } from 'tns-core-modules/ui/core/properties';
+import {
+    EventData,
+    LayoutBase,
+    Template,
+    View,
+} from 'tns-core-modules/ui/layouts/layout-base';
+import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
+import { Animation } from 'tns-core-modules/ui/animation';
+import { minusMonth, plusMonth, yearMonthData } from './utils';
+import { CalendarEventData, CellData } from './models';
+import { screen } from 'tns-core-modules/platform';
+import { MonthView } from '~/components/calendar/month-view';
 
-const HEADER_LAYOUT_PROPERTY = "headerLayout";
-const HEADER_ITEM_LAYOUT_PROPERTY = "headerItemLayout";
-const ITEM_LAYOUT_PROPERTY = "itemLayout";
-const DAY_NAMES_PROPERTY = "dayNames";
-const EVENTS_PROPERTY = "events";
-const NEXT = "next";
-const CURRENT = "current";
-const PREV = "prev";
+const HEADER_LAYOUT_PROPERTY = 'headerLayout';
+const HEADER_ITEM_LAYOUT_PROPERTY = 'headerItemLayout';
+const ITEM_LAYOUT_PROPERTY = 'itemLayout';
+const DAY_NAMES_PROPERTY = 'dayNames';
+const EVENTS_PROPERTY = 'events';
+const NEXT = 'next';
+const CURRENT = 'current';
+const PREV = 'prev';
 
-export const eventsProperty = new Property<Calendar, EventData[]>({
+export const eventsProperty = new Property<
+    Calendar,
+    EventData[]
+>({
     name: EVENTS_PROPERTY,
     affectsLayout: true,
     defaultValue: [],
-    valueChanged: (target) => {
-        target.onEventsChange()
-    }
+    valueChanged: (target): void => {
+        target.onEventsChange();
+    },
 });
-export const dayNamesProperty = new Property<Calendar, string[]>({
-    name: DAY_NAMES_PROPERTY,
-    affectsLayout: true,
-    defaultValue: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
-});
-export const headerLayoutProperty = new Property<Calendar, View | typeof LayoutBase>({
+export const dayNamesProperty = new Property<Calendar, string[]>(
+    {
+        name: DAY_NAMES_PROPERTY,
+        affectsLayout: true,
+        defaultValue: [
+            'mon',
+            'tue',
+            'wed',
+            'thu',
+            'fri',
+            'sat',
+            'sun',
+        ],
+    },
+);
+export const headerLayoutProperty = new Property<
+    Calendar,
+    View | typeof LayoutBase
+>({
     name: HEADER_LAYOUT_PROPERTY,
     affectsLayout: true,
-    valueChanged: (target) => {
-        target.onHeaderLayoutChange()
-    }
+    valueChanged: (target): void => {
+        target.onHeaderLayoutChange();
+    },
 });
-export const headerItemLayoutProperty = new Property<Calendar, View | Template>({
+export const headerItemLayoutProperty = new Property<
+    Calendar,
+    View | Template
+>({
     name: HEADER_ITEM_LAYOUT_PROPERTY,
     affectsLayout: true,
-    valueChanged: (target) => {
-        target.onHeaderItemTemplateChange()
-    }
+    valueChanged: (target): void => {
+        target.onHeaderItemTemplateChange();
+    },
 });
-export const itemLayoutProperty = new Property<Calendar, View | Template>({
+export const itemLayoutProperty = new Property<
+    Calendar,
+    View | Template
+>({
     name: ITEM_LAYOUT_PROPERTY,
     affectsLayout: true,
-    valueChanged: (target) => {
-        target.onItemTemplateChange()
-    }
+    valueChanged: (target): void => {
+        target.onItemTemplateChange();
+    },
 });
 
 export const knownTemplates = {
@@ -59,6 +86,10 @@ export const knownTemplates = {
     [HEADER_ITEM_LAYOUT_PROPERTY]: HEADER_ITEM_LAYOUT_PROPERTY,
     [ITEM_LAYOUT_PROPERTY]: ITEM_LAYOUT_PROPERTY,
 };
+
+function getWidthDIPs(): number {
+    return screen.mainScreen.widthDIPs;
+}
 
 export class Calendar extends StackLayout {
     public headerLayout: LayoutBase;
@@ -72,7 +103,7 @@ export class Calendar extends StackLayout {
     private animationPromise: Promise<void> = Promise.resolve();
     private monthViewWidth: number = getWidthDIPs();
 
-    constructor() {
+    public constructor() {
         super();
 
         this.addChild(
@@ -84,7 +115,7 @@ export class Calendar extends StackLayout {
                     />
                 `,
                 this,
-            )
+            ),
         );
         this.addChild(
             builder.parse(
@@ -94,26 +125,20 @@ export class Calendar extends StackLayout {
                     />
                 `,
                 this,
-            )
-        )
+            ),
+        );
     }
 
-    private onMonthLayoutLoaded = (args: EventData) => {
+    private onMonthLayoutLoaded = (args: EventData): void => {
         this.monthLayout = args.object as AbsoluteLayout;
 
         if (this.monthLayout.getChildrenCount() > 0) {
-            this.monthLayout.removeChildren()
+            this.monthLayout.removeChildren();
         }
 
-        this.monthLayout.addChild(
-            this.createPrevMonthView()
-        );
-        this.monthLayout.addChild(
-            this.createCurrentMonthView()
-        );
-        this.monthLayout.addChild(
-            this.createNextMonthView()
-        );
+        this.monthLayout.addChild(this.createPrevMonthView());
+        this.monthLayout.addChild(this.createCurrentMonthView());
+        this.monthLayout.addChild(this.createNextMonthView());
     };
 
     private createPrevMonthView(): View {
@@ -121,7 +146,7 @@ export class Calendar extends StackLayout {
         return this.createMonthView(
             this.monthViewData(prevDate),
             PREV,
-        )
+        );
     }
 
     private createCurrentMonthView(): View {
@@ -134,33 +159,38 @@ export class Calendar extends StackLayout {
     private createNextMonthView(): View {
         const nextDate = plusMonth(this.date);
         return this.createMonthView(
-            this.monthViewData(
-                nextDate,
-            ),
+            this.monthViewData(nextDate),
             NEXT,
-        )
+        );
     }
 
-    private applyItemTemplate(repeater: Repeater, itemLayout) {
-        repeater.itemTemplate = this.getTemplateFromItemLayout(itemLayout)
+    private applyItemTemplate(
+        repeater: Repeater,
+        itemLayout,
+    ): void {
+        repeater.itemTemplate = this.getTemplateFromItemLayout(
+            itemLayout,
+        );
     }
 
-    private onHeaderRepeaterLoaded = (args: EventData) => {
-        const repeater = this.headerRepeater = args.object as Repeater;
+    private onHeaderRepeaterLoaded = (args: EventData): void => {
+        const repeater = (this.headerRepeater = args.object as Repeater);
         this.applyHeaderLayout(repeater);
-        this.applyItemTemplate(repeater, this.headerItemLayout)
+        this.applyItemTemplate(repeater, this.headerItemLayout);
     };
 
-    private applyHeaderLayout(repeater: Repeater) {
+    private applyHeaderLayout(repeater: Repeater): void {
         if (this.headerLayout) {
-            if (typeof this.headerLayout == "function") {
-                repeater.itemsLayout = new (this.headerLayout as typeof LayoutBase)
+            if (typeof this.headerLayout == 'function') {
+                repeater.itemsLayout = new (this
+                    .headerLayout as typeof LayoutBase)();
             } else {
-                repeater.itemsLayout = this.headerLayout as LayoutBase
+                repeater.itemsLayout = this
+                    .headerLayout as LayoutBase;
             }
         } else {
             repeater.itemsLayout = builder.parse(
-                '<FlexboxLayout justifyContent="space-around" />'
+                '<FlexboxLayout justifyContent="space-around" />',
             ) as LayoutBase;
         }
     }
@@ -168,7 +198,7 @@ export class Calendar extends StackLayout {
     private createMonthView(
         items: CellData[],
         pos: typeof PREV | typeof CURRENT | typeof NEXT,
-    ) {
+    ): View {
         const view = new MonthView();
         this.applyMonthItemTemplate(view);
         view.items = items;
@@ -186,46 +216,54 @@ export class Calendar extends StackLayout {
             view.translateX = this.monthViewWidth;
         }
 
-        return view
+        return view;
     }
 
-    private applyMonthItemTemplate(view: MonthView) {
-        view.itemTemplate = this.getTemplateFromItemLayout(this.itemLayout);
+    private applyMonthItemTemplate(view: MonthView): void {
+        view.itemTemplate = this.getTemplateFromItemLayout(
+            this.itemLayout,
+        );
     }
 
-    private getMonthViews() {
+    private getMonthViews(): {
+        prev: MonthView;
+        current: MonthView;
+        next: MonthView;
+    } {
         return {
-            prev: this.monthLayout.getChildAt(0),
-            current: this.monthLayout.getChildAt(1),
-            next: this.monthLayout.getChildAt(2),
-        } as {
-            prev: MonthView,
-            current: MonthView,
-            next: MonthView,
-        }
+            prev: this.monthLayout.getChildAt(0) as MonthView,
+            current: this.monthLayout.getChildAt(1) as MonthView,
+            next: this.monthLayout.getChildAt(2) as MonthView,
+        };
     }
 
     private monthViewData(date: Date): CellData[] {
         return this.yearMonthData(
             date.getMonth(),
             date.getFullYear(),
-        )
+        );
     }
 
-    private yearMonthData(month: number, year: number) {
-        return yearMonthData(month, year, this.events)
+    private yearMonthData(
+        month: number,
+        year: number,
+    ): CellData[] {
+        return yearMonthData(month, year, this.events);
     }
 
-    public getTemplateFromItemLayout(itemLayout: View | Template): Template {
+    public getTemplateFromItemLayout(
+        itemLayout: View | Template,
+    ): Template {
         if (itemLayout) {
-            if (typeof itemLayout == "function") {
-                return  itemLayout as Template
+            if (typeof itemLayout == 'function') {
+                return itemLayout as Template;
             } else {
-                return () => itemLayout as View
+                return (): View => itemLayout as View;
             }
         } else {
-            return () => builder.parse(
-                `
+            return (): View =>
+                builder.parse(
+                    `
                     <Label 
                         text="{{ $value.value }}"
                         width="24"
@@ -233,18 +271,20 @@ export class Calendar extends StackLayout {
                         row="{{ $value.row }}"
                         col="{{ $value.col }}"
                     />
-                `
-            )
+                `,
+                );
         }
     }
 
     public onItemTemplateChange(): void {
         if (this.monthLayout) {
-            this.monthLayout.eachChild((child:MonthView) => {
-                this.applyMonthItemTemplate(child);
-                child.refresh();
-                return true;
-            })
+            this.monthLayout.eachChild(
+                (child: MonthView): boolean => {
+                    this.applyMonthItemTemplate(child);
+                    child.refresh();
+                    return true;
+                },
+            );
         }
     }
 
@@ -252,34 +292,35 @@ export class Calendar extends StackLayout {
         if (this.headerRepeater) {
             this.applyItemTemplate(
                 this.headerRepeater,
-                this.headerItemLayout
-            )
+                this.headerItemLayout,
+            );
         }
     }
 
     public onHeaderLayoutChange(): void {
         if (this.headerRepeater) {
-            this.applyHeaderLayout(this.headerRepeater)
+            this.applyHeaderLayout(this.headerRepeater);
         }
     }
 
     public onEventsChange(): void {
         if (this.monthLayout) {
-            const {prev, current, next} = this.getMonthViews();
+            const { prev, current, next } = this.getMonthViews();
 
             prev.items = this.monthViewData(
                 minusMonth(this.date),
             );
-            current.items = this.monthViewData(
-                this.date,
-            );
+            current.items = this.monthViewData(this.date);
             next.items = this.monthViewData(
                 plusMonth(this.date),
-            )
+            );
         }
     }
 
-    private prevMonthAnimation(prev: MonthView, current: MonthView): Promise<void> {
+    private prevMonthAnimation(
+        prev: MonthView,
+        current: MonthView,
+    ): Promise<void> {
         const definitions = [];
 
         definitions.push(
@@ -288,78 +329,97 @@ export class Calendar extends StackLayout {
                 translate: {
                     x: 0,
                     y: 0,
-                }
+                },
             },
             {
                 target: current,
                 translate: {
                     x: this.monthViewWidth,
                     y: 0,
-                }
-            }
+                },
+            },
         );
         const animationSet = new Animation(definitions);
 
-        return animationSet.play()
+        return animationSet.play();
     }
 
-    public prevMonth() {
+    public prevMonth(): void {
         this.date = minusMonth(this.date);
 
-        this.animationPromise = this.animationPromise.then(() => {
-            const {prev, current, next} = this.getMonthViews();
+        this.animationPromise = this.animationPromise.then(
+            (): Promise<void> => {
+                const {
+                    prev,
+                    current,
+                    next,
+                } = this.getMonthViews();
 
-            prev.translateX = -this.monthViewWidth;
-            const animationPromise = this.prevMonthAnimation(prev, current);
+                prev.translateX = -this.monthViewWidth;
+                const animationPromise = this.prevMonthAnimation(
+                    prev,
+                    current,
+                );
 
-            return animationPromise.then(() => {
-                this.monthLayout.removeChild(next);
-                this.monthLayout.insertChild(
-                    this.createPrevMonthView(),
-                    0
-                )
-            }).then(() => {
-                return new Promise(resolve => {
-                    setTimeout(resolve, 300)
-                })
-            })
-        })
+                return animationPromise
+                    .then((): void => {
+                        this.monthLayout.removeChild(next);
+                        this.monthLayout.insertChild(
+                            this.createPrevMonthView(),
+                            0,
+                        );
+                    })
+                    .then(
+                        (): Promise<void> => {
+                            return new Promise(
+                                (resolve): void => {
+                                    setTimeout(resolve, 300);
+                                },
+                            );
+                        },
+                    );
+            },
+        );
     }
 
-    public nextMonth() {
+    public nextMonth(): void {
         this.date = plusMonth(this.date);
 
-        this.animationPromise = this.animationPromise.then(() => {
-            const {prev, current, next} = this.getMonthViews();
-            const definitions = [];
-
-            definitions.push(
-                {
-                    target: current,
-                    translate: {
-                        x: -(this.monthViewWidth),
-                        y: 0,
-                    }
-                },
-                {
-                    target: next,
-                    translate: {
-                        x: 0,
-                        y: 0
-                    }
-                },
-            );
-            const animationSet = new Animation(definitions);
-            return animationSet.play().then(() => {
-                this.monthLayout.removeChild(
+        this.animationPromise = this.animationPromise.then(
+            (): Promise<void> => {
+                const {
                     prev,
+                    current,
+                    next,
+                } = this.getMonthViews();
+                const definitions = [];
+
+                definitions.push(
+                    {
+                        target: current,
+                        translate: {
+                            x: -this.monthViewWidth,
+                            y: 0,
+                        },
+                    },
+                    {
+                        target: next,
+                        translate: {
+                            x: 0,
+                            y: 0,
+                        },
+                    },
                 );
-                this.monthLayout.insertChild(
-                    this.createNextMonthView(),
-                    2
-                );
-            })
-        })
+                const animationSet = new Animation(definitions);
+                return animationSet.play().then((): void => {
+                    this.monthLayout.removeChild(prev);
+                    this.monthLayout.insertChild(
+                        this.createNextMonthView(),
+                        2,
+                    );
+                });
+            },
+        );
     }
 
     public exports = {
@@ -373,8 +433,4 @@ headerItemLayoutProperty.register(Calendar);
 itemLayoutProperty.register(Calendar);
 eventsProperty.register(Calendar);
 
-function getWidthDIPs() {
-    return screen.mainScreen.widthDIPs
-}
-
-export * from "./models"
+export * from './models';
